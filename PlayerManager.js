@@ -28,10 +28,10 @@ const skipActors = new Set();
 skipActors.add("Actor.UUIDToSkip1");
 skipActors.add("Actor.UUIDToSkip2");
 
-const players = game.users.filter(u => !u.isGM);
+// Name of the Macro that should be executed when clicking the level up button, this should be the macro that manages the Levelup fron player perspective
+const levelManager = "PlayerLevelManager";
 
 const isGer = game.i18n.lang.startsWith("de");
-
 const textDictonary = {
     dialogTitle: isGer ? "Spielerübersicht" : "Player Overview",
     xp: isGer ? "EP" : "XP",
@@ -40,6 +40,26 @@ const textDictonary = {
     senses: isGer ? "Sinne:" : "Senses:",
     noCharacterFound: isGer ? "Keine Akteure gefunden für" : "No actors found for"
 };
+
+// Start of main code from here there are no changable values, so make sure you know what you are doing if you want to change something below this line.
+const players = game.users.filter(u => !u.isGM);
+
+const actorBlockStyle = `border: 1px solid #555; border-radius: 5px; padding: 10px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.1);`;
+const resourceBlockStyle = `display: flex; align-items: center; gap: 6px; margin-bottom: 10px;`;
+const barStyle = `width: 100%; height: 10px; background: #333; border-radius: 4px; margin-bottom: 4px;`;
+const innerBarStyle = `height: 100%; border-radius: 4px;`;
+const hpBarColor = "#3fa63f";
+const xpBarColor = "#cfa93f";
+const btnStyle = `display: inline-flex; gap: 5px; justify-content: center; margin: 5px; vertical-align: middle;`;
+const btnBtnStyle = `padding: 0px 4px; width: 18px; height: 18px; line-height: 16px; font-size: 12px; border: none; background: #555; color: white; cursor: pointer;`;
+
+// Initial render of the overview dialog and function loop
+while (await renderPlayerOverview()) {
+    console.log("Redrawing player overview...");
+}
+
+return;
+// End of main code, function definitions below
 
 function getActorsOfPlayer(player) {
     let result = [];
@@ -60,16 +80,7 @@ function getActorsOfPlayer(player) {
     return result;
 }
 
-const actorBlockStyle = `border: 1px solid #555; border-radius: 5px; padding: 10px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.1);`;
-const resourceBlockStyle = `display: flex; align-items: center; gap: 6px; margin-bottom: 10px;`;
-const barStyle = `width: 100%; height: 10px; background: #333; border-radius: 4px; margin-bottom: 4px;`;
-const innerBarStyle = `height: 100%; border-radius: 4px;`;
-const hpBarColor = "#3fa63f";
-const xpBarColor = "#cfa93f";
-const btnStyle = `display: inline-flex; gap: 5px; justify-content: center; margin: 5px; vertical-align: middle;`;
-const btnBtnStyle = `padding: 0px 4px; width: 18px; height: 18px; line-height: 16px; font-size: 12px; border: none; background: #555; color: white; cursor: pointer;`;
-
-function xpBar(actor) {
+function xpBar(actor, player) {
     const xp = actor.system.details.xp.value;
     const min = actor.system.details.xp.min;
     const max = actor.system.details.xp.max;
@@ -90,7 +101,7 @@ function xpBar(actor) {
       </div>
       <div class="buttons" style="${btnStyle}">
         ${canLevelUp ? // if the Character can level up only the levelup button is shown
-            `<button data-action="levelup" data-id="${actor.id}" style="${btnBtnStyle}; background: #d4af37;"><i class="fas fa-arrow-up"></i></button>`
+            `<button data-action="levelup" data-id="${actor.id}" data-player="${player.id}" style="${btnBtnStyle}; background: #d4af37;"><i class="fas fa-arrow-up"></i></button>`
             :
             `<button data-action="xp-minus" data-id="${actor.id}" style="${btnBtnStyle}">−</button>
             <input type="number" data-id="${actor.id}" data-field="xp-change" value="0" style="width:40px; height:16px; font-size:11px; text-align:center;"></input>
@@ -186,7 +197,7 @@ async function renderPlayerOverview() {
         <div class="actor-block">
         <h3>${actor.name}</h3>
         
-        ${xpBar(actor)}
+        ${xpBar(actor, player)}
         ${hpBar(actor)}
         
         <div class="status-block">
@@ -217,6 +228,7 @@ async function renderPlayerOverview() {
                     const btn = ev.currentTarget;
                     const action = btn.dataset.action;
                     const actor = game.actors.get(btn.dataset.id);
+                    const player = game.users.get(btn.dataset.player);
 
                     if (!actor) return;
 
@@ -242,9 +254,22 @@ async function renderPlayerOverview() {
                     }
 
                     if (action === "levelup") {
-                        //game.socket.emit("module.levelup", { actorId: actor.id, userId: actor.ownership.default });
-                        await Dialog.prompt({ title: "Levelaufstieg auslösen?", content: "Das levelup Script ist noch nicht verknüpft. bitte Führen sie das Levelup Manuell aus." })
-                        redrawDialog = true; // Set flag to redraw dialog after levelup    
+                        console.log(`Triggering level up for ${actor.name} by player ${player.name}`);
+                        const macro = game.macros.getName(levelManager);
+                        if (macro) {
+                            const messageContent = `
+                                <p>${actor.name} kann ein Level aufsteigen!</p>
+                                <div style="text-align:center; margin-top:10px;">
+                                    <span class="btn" style="display: inline-block; padding: 10px 30px; background: #d4af37; color: #000; border-radius: 20px; box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);">
+                                        @Macro[${levelManager}]{Level Up!}
+                                    </span>
+                                </div>
+                            `;
+                            ChatMessage.create({ content: messageContent, speaker: { alias: "System" }, whisper: [player.id] });
+                        } else {
+                            await Dialog.prompt({ title: "Levelaufstieg auslösen?", content: "Das levelup Script ist noch nicht verknüpft. bitte Führen sie das Levelup Manuell aus." });
+                        }
+                        redrawDialog = true; // Set flag to redraw dialog after levelup message
                     }
                     dialog.close();
                 });
@@ -258,9 +283,4 @@ async function renderPlayerOverview() {
     });
 
     return await dialogResult;
-}
-
-// Initial render of the overview dialog and function loop
-while (await renderPlayerOverview()) {
-    console.log("Redrawing player overview...");
 }
