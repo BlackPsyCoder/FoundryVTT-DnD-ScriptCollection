@@ -9,19 +9,20 @@ const allowLevelDown = false;
 const macroLevelUp = "TriggerLevelUp";
 const macroLevelDown = "TriggerLevelDown";
 
+const lang = game.i18n.lang || "en";
 // textDictionary is used for an simple type of localization
 const textDictionary = {
-    dialogTitle: "Charakter Management",
-    btnClose: "Schließen",
-    level: "Level",
-    xp: "XP",
-    insufficientXP: "Nicht genug XP für den nächsten Level",
-    selectSpecies: "Spezies wählen",
-    selectBackground: "Hintergrund wählen",
-    levelUp: "Level Aufstieg",
-    levelDown: "Level Abstieg",
-    errorNoActor: "Kein Actor ausgewählt. Bitte wähle einen Actor aus bevor du das Makro ausführst.",
-    errorMissingMacro: "Makro nicht gefunden. Bitte stell sicher dass das benötigte Makro vorhanden ist oder passe den Namen des Makros an."
+    dialogTitle: (lang === "de") ? "Charakter Management" : "Character Management",
+    btnClose: (lang === "de") ? "Schließen" : "Close",
+    level:  (lang === "de") ? "Level" : "Level",
+    xp: (lang === "de") ? "XP" : "XP",
+    insufficientXP: (lang === "de") ? "Nicht genug XP für den nächsten Level" : "Not enough XP for the next level",
+    selectSpecies: (lang === "de") ? "Spezies wählen" : "Select Species",
+    selectBackground: (lang === "de") ? "Hintergrund wählen" : "Select Background",
+    levelUp: (lang === "de") ? "Level Aufstieg" : "Level Up",
+    levelDown: (lang === "de") ? "Level Abstieg" : "Level Down",
+    errorNoActor: (lang === "de") ? "Kein Actor ausgewählt. Bitte wähle einen Actor aus bevor du das Makro ausführst." : "No actor selected. Please select an actor before executing the macro.",
+    errorMissingMacro: (lang === "de") ? "Makro nicht gefunden. Bitte stell sicher dass das benötigte Makro vorhanden ist oder passe den Namen des Makros an." : "Macro not found. Please ensure the required macro is available or adjust the macro name."
 }
 
 if (scope?.playerId) {
@@ -146,17 +147,32 @@ async function selectSpecies(actor) {
         tab: "races"
     });
 
-    if (selectedUuid) {
-        const item = await fromUuid(selectedUuid);
-        const itemData = item.toObject();
-        const manager = await game.dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, itemData);
-        if (manager) {
-            await manager.render(true);
-            ui.notifications.info(`${textDictionary.selectSpecies} ${item.name} hinzugefügt.`);
-        } else {
-            ui.notifications.error("Advancement Manager konnte nicht gestartet werden.");
-        }
+    if (!selectedUuid) {
+        ui.notifications.info(`${textDictionary.selectSpecies} abgebrochen.`);
+        return;
     }
+
+    const item = await fromUuid(selectedUuid);
+    const itemData = item.toObject();
+    const manager = await game.dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, itemData);
+    if (!manager) {
+        ui.notifications.error("Advancement Manager konnte nicht gestartet werden.");
+        return;
+    }
+
+    const waitFinish = waitForApplicationClose(manager);
+    await manager.render(true);
+    
+    await waitFinish;
+    ui.notifications.info(`${textDictionary.selectSpecies} ${item.name} wurde abgeschlossen.`);
+}
+
+async function waitForApplicationClose(app) {
+    return new Promise(resolve => {
+        app.addEventListener("close", () => {
+            resolve();
+        });
+    });
 }
 
 async function selectBackground(actor) {
