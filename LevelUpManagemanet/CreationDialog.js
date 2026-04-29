@@ -9,21 +9,8 @@ const allowLevelDown = false;
 const macroLevelUp = "TriggerLevelUp";
 const macroLevelDown = "TriggerLevelDown";
 
-const lang = game.i18n.lang || "en";
 // textDictionary is used for an simple type of localization
-const textDictionary = {
-    dialogTitle: (lang === "de") ? "Charakter Management" : "Character Management",
-    btnClose: (lang === "de") ? "Schließen" : "Close",
-    level:  (lang === "de") ? "Level" : "Level",
-    xp: (lang === "de") ? "XP" : "XP",
-    insufficientXP: (lang === "de") ? "Nicht genug XP für den nächsten Level" : "Not enough XP for the next level",
-    selectSpecies: (lang === "de") ? "Spezies wählen" : "Select Species",
-    selectBackground: (lang === "de") ? "Hintergrund wählen" : "Select Background",
-    levelUp: (lang === "de") ? "Level Aufstieg" : "Level Up",
-    levelDown: (lang === "de") ? "Level Abstieg" : "Level Down",
-    errorNoActor: (lang === "de") ? "Kein Actor ausgewählt. Bitte wähle einen Actor aus bevor du das Makro ausführst." : "No actor selected. Please select an actor before executing the macro.",
-    errorMissingMacro: (lang === "de") ? "Makro nicht gefunden. Bitte stell sicher dass das benötigte Makro vorhanden ist oder passe den Namen des Makros an." : "Macro not found. Please ensure the required macro is available or adjust the macro name."
-}
+const textDictionary = GetTranslationDictionary(game.i18n.lang || "en");
 
 if (scope?.playerId) {
     if (scope?.playerId !== game.userId) {
@@ -69,6 +56,101 @@ if (actorId) {
 
 return;
 // End of Code execution from here, rest is function definitions
+
+// In this function is the translation of the Macro defined, you can add more Languages by adding another case with the according language code (e.g. "fr" for french) and translating the values in the dictionary.
+// The languages were generated with an AI translator, if you find any mistakes, please creat an issue or even better, a pull request with the correction.
+function GetTranslationDictionary(lang)
+{
+    let dictionary = {};
+    switch (lang) {
+        case "de":
+            dictionary = {
+                dialogTitle: "Charakter Management",
+                btnClose: "Schließen",
+                level: "Level",
+                xp: "XP",
+                insufficientXP: "Nicht genug XP für den nächsten Level",
+                selectSpecies: "Spezies wählen",
+                selectBackground: "Hintergrund wählen",
+                levelUp: "Level Aufstieg",
+                levelDown: "Level Abstieg",
+                messageAborted: "Aktion abgebrochen",
+                messageCompleted: "wurde abgeschlossen",
+                errorNoActor: "Kein Actor ausgewählt. Bitte wähle einen Actor aus bevor du das Makro ausführst.",
+                errorMissingMacro: "Makro nicht gefunden. Bitte stell sicher dass das benötigte Makro vorhanden ist oder passe den Namen des Makros an."
+            };
+            break;
+        case "es":
+            dictionary = {
+                dialogTitle: "Gestión de Personajes",
+                btnClose: "Cerrar",
+                level: "Nivel",
+                xp: "XP",
+                insufficientXP: "No hay suficientes XP para el próximo nivel",
+                selectSpecies: "Seleccionar Especie",
+                selectBackground: "Seleccionar trasfondo",
+                levelUp: "Subir de Nivel",
+                levelDown: "Bajar de Nivel",
+                messageAborted: "Acción cancelada",
+                messageCompleted: "ha sido completada",
+                errorNoActor: "No se ha seleccionado ningún actor. Por favor, selecciona un actor antes de ejecutar la macro.",
+                errorMissingMacro: "Macro no encontrada. Por favor, asegúrate de que la macro requerida esté disponible o ajusta el nombre de la macro."
+            };
+            break;
+        case "it":
+            dictionary = {
+                dialogTitle: "Gestione Personaggio",
+                btnClose: "Chiudi",
+                level: "Livello",
+                xp: "XP",
+                insufficientXP: "Non abbastanza XP per il prossimo livello",
+                selectSpecies: "Seleziona Specie",
+                selectBackground: "Seleziona Background",
+                levelUp: "Salire di Livello",
+                levelDown: "Scendere di Livello",
+                messageAborted: "Azione annullata",
+                messageCompleted: "è stata completata",
+                errorNoActor: "Nessun attore selezionato. Seleziona un attore prima di eseguire la macro.",
+                errorMissingMacro: "Macro non trovata. Assicurati che la macro necessaria sia disponibile o adatta il nome della macro."
+            };
+            break;
+        case "fr":
+            dictionary = {
+                dialogTitle: "Gestion de Personnage",
+                btnClose: "Fermer",
+                level: "Niveau",
+                xp: "XP",
+                insufficientXP: "Pas assez de XP pour le prochain niveau",
+                selectSpecies: "Sélectionner une Espèce",
+                selectBackground: "Sélectionner un Arrière-plan",
+                levelUp: "Monter en Niveau",
+                levelDown: "Descendre en Niveau",
+                messageAborted: "Action annulée",
+                messageCompleted: "a été complétée",
+                errorNoActor: "Aucun acteur sélectionné. Veuillez sélectionner un acteur avant d'exécuter la macro.",
+                errorMissingMacro: "Macro non trouvée. Veuillez vous assurer que la macro requise est disponible ou ajustez le nom de la macro."
+            };
+            break;
+        case "en":
+        default:
+            dictionary = {
+                dialogTitle: "Character Management",
+                btnClose: "Close",
+                level: "Level",
+                xp: "XP",
+                insufficientXP: "Not enough XP for the next level",
+                selectSpecies: "Select Species",
+                selectBackground: "Select Background",
+                levelUp: "Level Up",
+                levelDown: "Level Down",
+                messageAborted: "Action aborted",
+                messageCompleted: "has been completed",
+                errorNoActor: "No actor selected. Please select an actor before executing the macro.",
+                errorMissingMacro: "Macro not found. Please ensure the required macro is available or adjust the macro name."
+            };
+    }
+    return dictionary;
+}
 
 async function showDashboard(actor) {
     const hasSpecies = actor.items.some(i => i.type === "race");
@@ -148,7 +230,7 @@ async function selectSpecies(actor) {
     });
 
     if (!selectedUuid) {
-        ui.notifications.info(`${textDictionary.selectSpecies} abgebrochen.`);
+        ui.notifications.info(`${textDictionary.selectSpecies} ${textDictionary.messageAborted}.`);
         return;
     }
 
@@ -156,7 +238,7 @@ async function selectSpecies(actor) {
     const itemData = item.toObject();
     const manager = await game.dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, itemData);
     if (!manager) {
-        ui.notifications.error("Advancement Manager konnte nicht gestartet werden.");
+        ui.notifications.error(textDictionary.errorAtAdvancementManager);
         return;
     }
 
@@ -164,7 +246,32 @@ async function selectSpecies(actor) {
     await manager.render(true);
     
     await waitFinish;
-    ui.notifications.info(`${textDictionary.selectSpecies} ${item.name} wurde abgeschlossen.`);
+    ui.notifications.info(`${textDictionary.selectSpecies} ${item.name} ${textDictionary.messageCompleted}.`);
+}
+
+async function selectBackground(actor) {
+    const selectedUuid = await game.dnd5e.applications.CompendiumBrowser.selectOne({
+        tab: "backgrounds"
+    });
+
+    if (!selectedUuid) {
+        ui.notifications.info(`${textDictionary.selectBackground} ${textDictionary.messageAborted}.`);
+        return;
+    }
+
+    const item = await fromUuid(selectedUuid);
+    const itemData = item.toObject();
+    const manager = await game.dnd5e.applications.advancement.AdvancementManager.forNewItem(actor, itemData);
+    if (!manager) {
+        ui.notifications.error(textDictionary.errorAtAdvancementManager);
+        return;
+    }
+
+    const waitFinish = waitForApplicationClose(manager);
+    await manager.render(true);
+    
+    await waitFinish;
+    ui.notifications.info(`${textDictionary.selectBackground} ${item.name} ${textDictionary.messageCompleted}.`);
 }
 
 async function waitForApplicationClose(app) {
@@ -172,12 +279,5 @@ async function waitForApplicationClose(app) {
         app.addEventListener("close", () => {
             resolve();
         });
-    });
-}
-
-async function selectBackground(actor) {
-    Dialog.prompt({
-        title: textDictionary.selectBackground,
-        content: `<p>Diese Funktion ist noch nicht implementiert.</p>`,
     });
 }
