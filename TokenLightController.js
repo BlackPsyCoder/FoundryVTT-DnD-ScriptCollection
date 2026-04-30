@@ -12,37 +12,125 @@
 // These have been integrated into the script in such a way that they can be easily customized or expanded.
 // To do this, simply edit the "lightPresets" variable. You can add as many presets as you like.
 
-const isGer = game.i18n.lang.startsWith("de");
+const unit = game.canvas.grid.units;
+const textDictionary = GetTranslationDictionary(game.i18n.lang);
 
 // Predefined Light Presets - these can be easily customized or expanded by editing this variable
 // Make sure to use the same keys (name, bright, dim, color, anim) for each preset and adjust the values accordingly
 const lightPresets = [
-  { name: (isGer ? "🚫 Licht Aus" : "🚫 Light Off"), bright: 0, dim: 0, color: "#000000", anim: "none" },
-  { name: (isGer ? "🔥 Fackel" : "🔥 Torch"), bright: 6, dim: 12, color: "#ffaa00", anim: "flame" },
-  { name: (isGer ? "🏮 Laterne" : "🏮 Lantern"), bright: 9, dim: 18, color: "#ffcc66", anim: "torch" },
-  { name: (isGer ? "✨ Licht (Zauber)" : "✨ Light (Spell)"), bright: 6, dim: 12, color: "#ffffff", anim: "null" }
+  { name: (game.i18n.lang === "de" ? "🚫 Licht Aus" : "🚫 Light Off"), bright: 0, dim: 0, color: "#000000", anim: "none" },
+  { name: (game.i18n.lang === "de" ? "🔥 Fackel" : "🔥 Torch"), bright: 6, dim: 12, color: "#ffaa00", anim: "flame" },
+  { name: (game.i18n.lang === "de" ? "🏮 Laterne" : "🏮 Lantern"), bright: 9, dim: 18, color: "#ffcc66", anim: "torch" },
+  { name: (game.i18n.lang === "de" ? "✨ Licht (Zauber)" : "✨ Light (Spell)"), bright: 6, dim: 12, color: "#ffffff", anim: "null" }
 ];
 
-const isMeter = game.canvas.grid.units.includes("m");
-const unitText = isMeter ? (isGer ? "Meter" : "Meters") : (isGer ? "Fuß" : "Feet");
-const textDictionary = {
-  dialogTitle: isGer ? "Licht einstellungen anpassen" : "Adjust light range",
-  groupLightTitle: isGer ? "Licht" : "Light",
-  brightLabel: `${(isGer ? "Hell" : "Bright")}` + ` ${unitText}:`,
-  dimLabel: `${(isGer ? "Gedimmt" : "Dim")}` + ` ${unitText}:`,
-  groupColorTitle: isGer ? "Farbe:" : "Color:",
-  colorLabel: isGer ? "Farbe:" : "Color:",
-  intensityLabel: isGer ? "Intensität:" : "Intensity:",
-  groupAnimationLabel: isGer ? "Animation:" : "Animation:",
-  animTypeLabel: isGer ? "Typ:" : "Type:",
-  animSpeedLabel: isGer ? "Geschwindigkeit:" : "Speed:",
-  animIntensityLabel: isGer ? "Animationsintensität:" : "Animation Intensity:",
-  saveBtnLabel: isGer ? "Speichern" : "Save",
-  cancelBtnLabel: isGer ? "Abbrechen" : "Cancel",
-  noTokenWarning: isGer ? "Kein Token ausgewählt!" : "No token selected!",  
-};
+const presetLightDistance = (unit === "m") ? 1.5 : 5.0; // Default distance for presets, can be adjusted as needed
 
-const presetLightDistance = isMeter ? 1.5 : 5.0; // Default distance for presets, can be adjusted as needed
+function GetTranslationDictionary(lang) {
+  let dictionary = {};
+  const unit = game.canvas.grid.units;
+  switch (lang) {
+    case "de":
+      dictionary = {
+        dialogTitle: "Licht einstellungen anpassen",
+        groupLightTitle: "Licht",
+        unitText: (unit === "m" ? "Meter" : unit === "ft" ? "Fuß" : unit || "Units"),
+        brightLabel: "Hell",
+        dimLabel: "Gedimmt",
+        groupColorTitle: "Farbe",
+        colorLabel: "Farbe",
+        intensityLabel: "Intensität",
+        groupAnimationLabel: "Animation",
+        animTypeLabel: "Typ",
+        animSpeedLabel: "Geschwindigkeit",
+        animIntensityLabel: "Animationsintensität",
+        saveBtnLabel: "Speichern",
+        cancelBtnLabel: "Abbrechen",
+        noTokenWarning: "Kein Token ausgewählt!"
+      };
+      break;
+    case "es":
+      dictionary = {
+        dialogTitle: "Ajustar rango de luz",
+        groupLightTitle: "Luz",
+        unitText: (unit === "m" ? "Metros" : unit === "ft" ? "Pies" : unit || "Unidades"),
+        brightLabel: "Bright",
+        dimLabel: "Dim",
+        groupColorTitle: "Color",
+        colorLabel: "Color",
+        intensityLabel: "Intensity",
+        groupAnimationLabel: "Animation",
+        animTypeLabel: "Type",
+        animSpeedLabel: "Speed",
+        animIntensityLabel: "Animation Intensity",
+        saveBtnLabel: "Save",
+        cancelBtnLabel: "Cancel",
+        noTokenWarning: "No token selected!"
+      };
+      break;
+    case "it":
+      dictionary = {
+        dialogTitle: "Regola la portata della luce",
+        groupLightTitle: "Luce",
+        unitText: (unit === "m" ? "Meters" : unit === "ft" ? "Feet" : unit || "Units"),
+        brightLabel: "Bright",
+        dimLabel: "Dim",
+        groupColorTitle: "Color",
+        colorLabel: "Color",
+        intensityLabel: "Intensity",
+        groupAnimationLabel: "Animation",
+        animTypeLabel: "Type",
+        animSpeedLabel: "Speed",
+        animIntensityLabel: "Animation Intensity",
+        saveBtnLabel: "Save",
+        cancelBtnLabel: "Cancel",
+        noTokenWarning: "No token selected!"
+      };
+      break;
+    case "fr":
+      dictionary = {
+        dialogTitle: "Ajuster la portée de la lumière",
+        groupLightTitle: "Lumière",
+        unitText: (unit === "m" ? "Mètres" : unit === "ft" ? "Pieds" : unit || "Unités"),
+        brightLabel: "Lumineux",
+        dimLabel: "Sombre",
+        groupColorTitle: "Couleur",
+        colorLabel: "Couleur",
+        intensityLabel: "Intensité",
+        groupAnimationLabel: "Animation",
+        animTypeLabel: "Type",
+        animSpeedLabel: "Vitesse",
+        animIntensityLabel: "Intensité de l'animation",
+        saveBtnLabel: "Enregistrer",
+        cancelBtnLabel: "Annuler",
+        noTokenWarning: "Aucun token sélectionné!"
+      };
+      break;
+    case "en":
+    default:
+      dictionary = {
+        dialogTitle: "Adjust light range",
+        groupLightTitle: "Light",
+        unitText: (unit === "m" ? "Meters" : unit === "ft" ? "Feet" : unit || "Units"),
+        brightLabel: "Bright",
+        dimLabel: "Dim",
+        groupColorTitle: "Color",
+        colorLabel: "Color",
+        intensityLabel: "Intensity",
+        groupAnimationLabel: "Animation",
+        animTypeLabel: "Type",
+        animSpeedLabel: "Speed",
+        animIntensityLabel: "Animation Intensity",
+        saveBtnLabel: "Save",
+        cancelBtnLabel: "Cancel",
+        noTokenWarning: "No token selected!"
+      };
+  }
+  return dictionary;
+}
+
+// End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
+// ================================================
 
 function getAnimationTypes() {
   let options = `<option value="none">-</option>`;
@@ -120,13 +208,13 @@ const lightControlDialog = `
   <fieldset>
     <legend>${textDictionary.groupLightTitle}</legend>
     <div class="form-group">
-      <label for="brightLight">${textDictionary.brightLabel}</label>
+      <label for="brightLight">${textDictionary.brightLabel} (${textDictionary.unitText}):</label>
       <div class="form-fields">
         <input type="number" name="brightLight" id="brightLight" value="${presetLightDistance}" min="0" step="0.1">
       </div>
     </div>
     <div class="form-group">
-      <label for="dimLight">${textDictionary.dimLabel}</label>
+      <label for="dimLight">${textDictionary.dimLabel} (${textDictionary.unitText}):</label>
       <div class="form-fields">
         <input type="number" name="dimLight" id="dimLight" value="${presetLightDistance}" min="0" step="0.1">
       </div>
@@ -142,7 +230,7 @@ const lightControlDialog = `
       </div>
     </div>
     <div class="form-group">
-      <label>${textDictionary.intensityLabel}</label>
+      <label for="lightAlpha">${textDictionary.intensityLabel}</label>
       <div class="form-fields">
         <input type="range" name="lightAlpha" min="0" max="1" step="0.05" value="0.10" 
                oninput="$(this).next().text(this.value)">
@@ -162,7 +250,7 @@ const lightControlDialog = `
       </div>
     </div>
     <div class="form-group">
-      <label>${textDictionary.animSpeedLabel}</label>
+      <label for="animSpeed">${textDictionary.animSpeedLabel}</label>
       <div class="form-fields">
         <input type="range" name="animSpeed" min="1" max="10" step="1" value="2" 
                oninput="$(this).next().text(this.value)">
@@ -170,7 +258,7 @@ const lightControlDialog = `
       </div>
     </div>
     <div class="form-group">
-      <label>${textDictionary.animIntensityLabel}</label>
+      <label for="animIntensity">${textDictionary.animIntensityLabel}</label>
       <div class="form-fields">
         <input type="range" name="animIntensity" min="1" max="10" step="1" value="5" 
                oninput="$(this).next().text(this.value)">

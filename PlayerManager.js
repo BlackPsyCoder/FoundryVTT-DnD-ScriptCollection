@@ -32,14 +32,64 @@ skipActors.add("Actor.UUIDToSkip2");
 const levelManager = "PlayerLevelManager";
 
 const isGer = game.i18n.lang.startsWith("de");
-const textDictonary = {
-    dialogTitle: isGer ? "Spielerübersicht" : "Player Overview",
-    xp: isGer ? "EP" : "XP",
-    hp: isGer ? "TP" : "HP",
-    stats: isGer ? "Status:" : "Status:",
-    senses: isGer ? "Sinne:" : "Senses:",
-    noCharacterFound: isGer ? "Keine Akteure gefunden für" : "No actors found for"
-};
+const textDictonary = GetTranslationDictionary(game.i18n.lang);
+
+function GetTranslationDictionary(lang) {
+    let dictionary = {};
+    switch (lang) {
+        case "de":
+            dictionary = {
+                dialogTitle: "Spielerübersicht",
+                xp: "EP",
+                hp: "TP",
+                stats: "Status",
+                senses: "Sinne",
+                noCharacterFound: "Keine Akteure gefunden für",
+            };
+            break;
+        case "es":
+            dictionary = {
+                dialogTitle: "Resumen de jugadores",
+                xp: "XP",
+                hp: "HP",
+                stats: "Estado",
+                senses: "Sentidos",
+                noCharacterFound: "No se encontraron actores para",
+            };
+            break;
+        case "it":
+            dictionary = {
+                dialogTitle: "Panoramica dei giocatori",
+                xp: "XP",
+                hp: "HP",
+                stats: "Stato",
+                senses: "Sensi",
+                noCharacterFound: "Nessun attore trovato per",
+            };
+            break;
+        case "fr":
+            dictionary = {
+                dialogTitle: "Aperçu des joueurs",
+                xp: "XP",
+                hp: "HP",
+                stats: "État",
+                senses: "Sens",
+                noCharacterFound: "Aucun acteur trouvé pour",
+            };
+            break;
+        case "en":
+        default:
+            dictionary = {
+                dialogTitle: "Player Overview",
+                xp: "XP",
+                hp: "HP",
+                stats: "Status",
+                senses: "Senses",
+                noCharacterFound: "No actors found for",
+            };
+    }
+    return dictionary;
+}
 
 // Start of main code from here there are no changable values, so make sure you know what you are doing if you want to change something below this line.
 const players = game.users.filter(u => !u.isGM);
