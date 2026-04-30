@@ -1,3 +1,27 @@
+/// <reference path="../PlayerManager.js" />
+
+// ** LiesMich **
+// Dieses Skript kann verwendet werden um bei einem Actor ein LevelDown Auszulösen.
+// Das Skript ist darauf Ausgelegt das es von einem Anderen Skript Ausgeöst werden kann
+
+// ** ReadMe **
+// This script can be used to trigger a level down for an actor.
+// The script is designed to be triggered by another script, such as PlayerManager.js. When using it with PlayerManager.js, make sure to adjust the name of this script in PlayerManager.js accordingly.
+
+
+// End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
+
+/*
+    ______ _            _   ______          _____           _           
+    | ___ \ |          | |  | ___ \        /  __ \         | |          
+    | |_/ / | __ _  ___| | _| |_/ /__ _   _| /  \/ ___   __| | ___ _ __ 
+    | ___ \ |/ _` |/ __| |/ /  __/ __| | | | |    / _ \ / _` |/ _ \ '__|
+    | |_/ / | (_| | (__|   <| |  \__ \ |_| | \__/\ (_) | (_| |  __/ |   
+    \____/|_|\__,_|\___|_|\_\_|  |___/\__, |\____/\___/ \__,_|\___|_|   
+                                       __/ |                            
+                                      |___/                             
+*/
+
 
 const actorId = scope?.actorId || game.canvas.tokens.controlled[0]?.actor?.id;
 
@@ -7,7 +31,7 @@ if (actorId) {
     ui.notifications.warn("Kein Actor ausgewählt. Bitte wähle einen Actor aus bevor du das Makro ausführst.");
 }
 
-async function levelDownProcess() {
+async function levelDownProcess(actor) {
     const classes = actor.items.filter(i => i.type === "class");
     const manager = game.dnd5e.applications.advancement.AdvancementManager;
 

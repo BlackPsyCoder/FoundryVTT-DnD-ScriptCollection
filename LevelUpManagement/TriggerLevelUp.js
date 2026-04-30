@@ -6,16 +6,75 @@
 // ** ReadMe **
 // This script can be used to trigger a level up for an actor.
 // When leveling up, you can choose whether to increase the level of an existing class or add a new class (multiclass).
-if (scope?.playerId) {
-    if (scope?.playerId !== game.userId) {
-        return;
+
+const textDictonary = GetTranslationDictionary(game.i18n.lang);
+
+
+function GetTranslationDictionary(lang) {
+    let dictionary = {};
+    switch (lang) {
+        case "de":
+            dictionary = {
+                dialogTitle: "Levelaufstieg",
+                errorNoActor: "Kein Actor ausgewählt. Bitte wähle einen Actor aus.",
+                chooseClass: "Wähle eine Klasse für das Level up",
+                newClass: "Neue Klasse (Multiclass)",
+            };
+            break;
+        case "es":
+            dictionary = {
+                dialogTitle: "Subida de nivel",
+                errorNoActor: "No se ha seleccionado ningún actor. Por favor, selecciona un actor.",
+                chooseClass: "Elige una clase para el nivel",
+                newClass: "Nueva clase (Multiclase)",
+            };
+            break;
+        case "it":
+            dictionary = {
+                dialogTitle: "Salto di livello",
+                errorNoActor: "Nessun attore selezionato. Per favore, seleziona un attore.",
+                chooseClass: "Scegli una classe per il livello",
+                newClass: "Nuova classe (Multiclasse)",
+            };
+            break;
+        case "fr":
+            dictionary = {
+                dialogTitle: "Augmentation de niveau",
+                errorNoActor: "Aucun acteur sélectionné. Veuillez sélectionner un acteur.",
+                chooseClass: "Choisissez une classe pour le niveau",
+                newClass: "Nouvelle classe (Multiclasse)",
+            };
+            break;
+        case "en":
+        default:
+            dictionary = {
+                dialogTitle: "Level Up",
+                errorNoActor: "No actor selected. Please select an actor.",
+                chooseClass: "Choose a class for level up",
+                newClass: "New Class (Multiclass)",
+            };
+            break;
     }
+    return dictionary;
 }
+
+// End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
+/*
+    ______ _            _   ______          _____           _           
+    | ___ \ |          | |  | ___ \        /  __ \         | |          
+    | |_/ / | __ _  ___| | _| |_/ /__ _   _| /  \/ ___   __| | ___ _ __ 
+    | ___ \ |/ _` |/ __| |/ /  __/ __| | | | |    / _ \ / _` |/ _ \ '__|
+    | |_/ / | (_| | (__|   <| |  \__ \ |_| | \__/\ (_) | (_| |  __/ |   
+    \____/|_|\__,_|\___|_|\_\_|  |___/\__, |\____/\___/ \__,_|\___|_|   
+                                       __/ |                            
+                                      |___/                             
+*/
+
 const actorId = scope?.actorId || game.canvas.tokens.controlled[0]?.actor?.id;
 if (actorId) {
     levelUpProcess(game.actors.get(actorId));
 } else {
-    ui.notifications.warn("Kein Actor ausgewählt oder übergeben. Bitte wähle einen Actor aus oder übergebe die Actor ID.");
+    ui.notifications.warn(textDictionary.errorNoActor);
 }
 
 async function levelUpProcess(actor) {
@@ -24,14 +83,13 @@ async function levelUpProcess(actor) {
     const browser = game.dnd5e.applications.compendiumBrowser;
 
     const addNewClass = async () => {
-        const classUuid = await browser.selectOne({ 
+        const classUuid = await browser.selectOne({
             tab: "classes",
             filters: { locked: { types: new Set(["class"]) } }
         });
-        
+
         if (classUuid) {
             const item = await fromUuid(classUuid);
-            // Wir nutzen hier automaticApplication: true für einen flüssigen Ablauf
             const m = await manager.forNewItem(actor, item.toObject(), { automaticApplication: true });
             return m.render(true);
         }
@@ -45,39 +103,25 @@ async function levelUpProcess(actor) {
             label: `${cls.name} (${cls.system.levels} ➔ ${cls.system.levels + 1})`,
             callback: async () => {
                 const nextLevel = cls.system.levels + 1;
-                
-                // WICHTIG: Wir übergeben automaticApplication: true in den Optionen
-                const m = await manager.forLevelChange(actor, cls.id, 1, { 
-                    automaticApplication: true 
+
+                const m = await manager.forLevelChange(actor, cls.id, 1, {
+                    automaticApplication: true
                 });
 
-                if (m) {
-                    // Falls der Manager Schritte hat, rendern wir ihn.
-                    // Falls nicht (steps leer), wird durch automaticApplication 
-                    // der Prozess oft direkt beim Rendern ohne Crash abgeschlossen.
-                    if (m.steps && m.steps.length > 0) {
-                        m.render(true);
-                    } else {
-                        // Falls wirklich gar nichts zu tun ist:
-                        ui.notifications.info("Keine manuellen Änderungen für dieses Level erforderlich.");
-                        // Da wir kein m.apply() haben, rendern wir kurz, 
-                        // der Manager schließt sich bei 0 Steps meist sofort selbst.
-                        m.render(true); 
-                    }
-                }
+                m.render(true);
             }
         };
     }
 
     classButtons["newClass"] = {
         icon: '<i class="fas fa-plus"></i>',
-        label: "Neue Klasse (Multiclass)",
+        label: textDictionary.newClass,
         callback: async () => await addNewClass()
     };
 
     new Dialog({
         title: `Levelaufstieg: ${actor.name}`,
-        content: `<p style="text-align:center">Wähle eine Klasse für Level ${actor.system.details.level + 1}</p>`,
+        content: `<p style="text-align:center">${textDictionary.chooseClass} (${actor.system.details.level + 1})</p>`,
         buttons: classButtons,
         default: "newClass"
     }).render(true);
