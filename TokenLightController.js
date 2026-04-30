@@ -24,7 +24,8 @@ const lightPresets = [
   { name: (game.i18n.lang === "de" ? "✨ Licht (Zauber)" : "✨ Light (Spell)"), bright: 6, dim: 12, color: "#ffffff", anim: "null" }
 ];
 
-const presetLightDistance = (unit === "m") ? 1.5 : 5.0; // Default distance for presets, can be adjusted as needed
+// Default distance for presets, can be adjusted as needed
+const presetLightDistance = (unit === "m") ? 1.5 : 5.0; 
 
 function GetTranslationDictionary(lang) {
   let dictionary = {};
@@ -130,7 +131,17 @@ function GetTranslationDictionary(lang) {
 }
 
 // End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
-// ================================================
+
+/*
+    ______ _            _   ______          _____           _           
+    | ___ \ |          | |  | ___ \        /  __ \         | |          
+    | |_/ / | __ _  ___| | _| |_/ /__ _   _| /  \/ ___   __| | ___ _ __ 
+    | ___ \ |/ _` |/ __| |/ /  __/ __| | | | |    / _ \ / _` |/ _ \ '__|
+    | |_/ / | (_| | (__|   <| |  \__ \ |_| | \__/\ (_) | (_| |  __/ |   
+    \____/|_|\__,_|\___|_|\_\_|  |___/\__, |\____/\___/ \__,_|\___|_|   
+                                       __/ |                            
+                                      |___/                             
+*/
 
 function getAnimationTypes() {
   let options = `<option value="none">-</option>`;

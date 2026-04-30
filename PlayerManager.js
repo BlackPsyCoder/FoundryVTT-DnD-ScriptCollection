@@ -20,7 +20,7 @@
 
 // Set to true to only show the main character of each player, false to show all characters with ownership
 // If this is used consider to add IDs of sider characters (pets, summons, companions, spectators, etc.) to the skipActors Set to not show them in the overview.
-const onlyShowMainCharacter = false;
+const onlyShowMainCharacter = true;
 
 // Hear can actor ben added than schould not been listed in the Overview (e.g. Pets, Summons, Companions, Spectators, etc.)
 // if onlyShowManCharacter is true, this has no effect
@@ -92,6 +92,18 @@ function GetTranslationDictionary(lang) {
 }
 
 // Start of main code from here there are no changable values, so make sure you know what you are doing if you want to change something below this line.
+
+/*
+    ______ _            _   ______          _____           _           
+    | ___ \ |          | |  | ___ \        /  __ \         | |          
+    | |_/ / | __ _  ___| | _| |_/ /__ _   _| /  \/ ___   __| | ___ _ __ 
+    | ___ \ |/ _` |/ __| |/ /  __/ __| | | | |    / _ \ / _` |/ _ \ '__|
+    | |_/ / | (_| | (__|   <| |  \__ \ |_| | \__/\ (_) | (_| |  __/ |   
+    \____/|_|\__,_|\___|_|\_\_|  |___/\__, |\____/\___/ \__,_|\___|_|   
+                                       __/ |                            
+                                      |___/                             
+*/
+
 const players = game.users.filter(u => !u.isGM);
 
 const actorBlockStyle = `border: 1px solid #555; border-radius: 5px; padding: 10px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.1);`;

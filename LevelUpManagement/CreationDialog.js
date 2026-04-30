@@ -12,51 +12,6 @@ const macroLevelDown = "TriggerLevelDown";
 // textDictionary is used for an simple type of localization
 const textDictionary = GetTranslationDictionary(game.i18n.lang || "en");
 
-if (scope?.playerId) {
-    if (scope?.playerId !== game.userId) {
-        return;
-    }
-}
-const actorId = scope?.actorId || game.canvas.tokens.controlled[0]?.actor?.id;
-if (actorId) {
-    const actor = game.actors.get(actorId);
-    let action = "main";
-    while (true) {
-        let breakLoop = false;
-        switch (action) {
-            case "main":
-                action = await showDashboard(actor);
-                break;
-            case "levelUp":
-                await game.macros.getName("TriggerLevelUp").execute();
-                action = "close";
-                break;
-            case "levelDown":
-                await game.macros.getName("TriggerLevelDown").execute();
-                action = "close";
-                break;
-            case "selectSpecies":
-                await selectSpecies(actor);
-                action = "main";
-                break;
-            case "selectBackground":
-                await selectBackground(actor);
-                action = "main";
-                break;
-            case "close":
-            default:
-                breakLoop = true;
-        }
-        if (breakLoop) { break; }
-    }
-
-} else {
-    ui.notifications.warn(textDictionary.errorNoActor);
-}
-
-return;
-// End of Code execution from here, rest is function definitions
-
 // In this function is the translation of the Macro defined, you can add more Languages by adding another case with the according language code (e.g. "fr" for french) and translating the values in the dictionary.
 // The languages were generated with an AI translator, if you find any mistakes, please creat an issue or even better, a pull request with the correction.
 function GetTranslationDictionary(lang)
@@ -151,6 +106,62 @@ function GetTranslationDictionary(lang)
     }
     return dictionary;
 }
+
+// End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
+/*
+    ______ _            _   ______          _____           _           
+    | ___ \ |          | |  | ___ \        /  __ \         | |          
+    | |_/ / | __ _  ___| | _| |_/ /__ _   _| /  \/ ___   __| | ___ _ __ 
+    | ___ \ |/ _` |/ __| |/ /  __/ __| | | | |    / _ \ / _` |/ _ \ '__|
+    | |_/ / | (_| | (__|   <| |  \__ \ |_| | \__/\ (_) | (_| |  __/ |   
+    \____/|_|\__,_|\___|_|\_\_|  |___/\__, |\____/\___/ \__,_|\___|_|   
+                                       __/ |                            
+                                      |___/                             
+*/
+
+if (scope?.playerId) {
+    if (scope?.playerId !== game.userId) {
+        return;
+    }
+}
+const actorId = scope?.actorId || game.canvas.tokens.controlled[0]?.actor?.id;
+if (actorId) {
+    const actor = game.actors.get(actorId);
+    let action = "main";
+    while (true) {
+        let breakLoop = false;
+        switch (action) {
+            case "main":
+                action = await showDashboard(actor);
+                break;
+            case "levelUp":
+                await game.macros.getName("TriggerLevelUp").execute();
+                action = "close";
+                break;
+            case "levelDown":
+                await game.macros.getName("TriggerLevelDown").execute();
+                action = "close";
+                break;
+            case "selectSpecies":
+                await selectSpecies(actor);
+                action = "main";
+                break;
+            case "selectBackground":
+                await selectBackground(actor);
+                action = "main";
+                break;
+            case "close":
+            default:
+                breakLoop = true;
+        }
+        if (breakLoop) { break; }
+    }
+
+} else {
+    ui.notifications.warn(textDictionary.errorNoActor);
+}
+
+return;
 
 async function showDashboard(actor) {
     const hasSpecies = actor.items.some(i => i.type === "race");
