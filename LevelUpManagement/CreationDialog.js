@@ -14,8 +14,7 @@ const textDictionary = GetTranslationDictionary(game.i18n.lang || "en");
 
 // In this function is the translation of the Macro defined, you can add more Languages by adding another case with the according language code (e.g. "fr" for french) and translating the values in the dictionary.
 // The languages were generated with an AI translator, if you find any mistakes, please creat an issue or even better, a pull request with the correction.
-function GetTranslationDictionary(lang)
-{
+function GetTranslationDictionary(lang) {
     let dictionary = {};
     switch (lang) {
         case "de":
@@ -211,7 +210,7 @@ async function showDashboard(actor) {
                 });
             }
         }, { width: 350 });
-        
+
         d.render(true);
     });
     return await dialogResult;
@@ -220,7 +219,7 @@ async function showDashboard(actor) {
 async function triggerLevelUp(actor) {
     const macro = game.macros.getName(macroLevelUp);
     if (macro) {
-        await macro.execute( { actorId: actor.id } );
+        await macro.execute({ actorId: actor.id });
     } else {
         ui.notifications.warn(`${macroLevelUp} ${textDictionary.errorMissingMacro}`);
     }
@@ -229,7 +228,7 @@ async function triggerLevelUp(actor) {
 async function triggerLevelDown(actor) {
     const macro = game.macros.getName(macroLevelDown);
     if (macro) {
-        await macro.execute( { actorId: actor.id } );
+        await macro.execute({ actorId: actor.id });
     } else {
         ui.notifications.warn(`${macroLevelDown} ${textDictionary.errorMissingMacro}`);
     }
@@ -255,7 +254,7 @@ async function selectSpecies(actor) {
 
     const waitFinish = waitForApplicationClose(manager);
     await manager.render(true);
-    
+
     await waitFinish;
     ui.notifications.info(`${textDictionary.selectSpecies} ${item.name} ${textDictionary.messageCompleted}.`);
 }
@@ -280,7 +279,7 @@ async function selectBackground(actor) {
 
     const waitFinish = waitForApplicationClose(manager);
     await manager.render(true);
-    
+
     await waitFinish;
     ui.notifications.info(`${textDictionary.selectBackground} ${item.name} ${textDictionary.messageCompleted}.`);
 }

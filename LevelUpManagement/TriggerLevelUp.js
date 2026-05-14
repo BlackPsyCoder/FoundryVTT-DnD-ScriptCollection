@@ -7,7 +7,7 @@
 // This script can be used to trigger a level up for an actor.
 // When leveling up, you can choose whether to increase the level of an existing class or add a new class (multiclass).
 
-const textDictonary = GetTranslationDictionary(game.i18n.lang);
+const textDictionary = GetTranslationDictionary(game.i18n.lang);
 
 
 function GetTranslationDictionary(lang) {

@@ -1,8 +1,8 @@
 // ** LiesMich **
 // Dieses Skript ermöglicht es die Lichteinstellungen von mehreren Tokens schnell anzupassen.
-// Die Einstellungen werden nur auf die Token angewendet und wirken sich nicht auf den verknüften Actor aus.
+// Die Einstellungen werden nur auf die Token angewendet und wirken sich nicht auf den verknüpften Actor aus.
 // Es gibt einige vordefinierte Presets, die durch die Buttons am Anfang des Dialogs schnell angewendet werden können.
-// diese wurden so in das Sktipt integriert, dass sie leicht angepasst oder erweitert werden können.
+// Diese wurden so in das Sktipt integriert, dass sie leicht angepasst oder erweitert werden können.
 // Dazu muss nur die Variable "lightPresets" bearbeitet werden. Es können beliebig viele Presets hinzugefügt werden.
 // 
 // ** README **
