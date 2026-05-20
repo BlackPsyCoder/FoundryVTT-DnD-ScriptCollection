@@ -631,9 +631,11 @@ async function ShowDistributionDialog(actor, title, values) {
       }
     });
 
-    let valuesHtml = remainingValues.map((v, i) =>
-      `<div class="${DIALOG_CLASSES.distributeDialog.attrValue}" draggable="true" data-value="${v}" id="val-${i}">${v}</div>`
-    ).join("");
+    let valueId = 0;
+    let valuesHtml = remainingValues.map((v, i) => {
+      const uniqueId = `val-${valueId++}`;
+      return `<div class="${DIALOG_CLASSES.distributeDialog.attrValue}" draggable="true" data-value="${v}" id="${uniqueId}">${v}</div>`;
+    }).join("");
 
     const gridHtml = abilities.map(a => {
       const currentActorValue = GetActorAbilityValue(actor, a.id);
@@ -701,12 +703,12 @@ async function ShowDistributionDialog(actor, title, values) {
       close: () => resolve(false),
       render: (html) => {
         const pool = html.find('#pool');
-        let selectedValue = null;
+        let selectedElementId = null;
 
         const clearSelection = () => {
           html.find(`.${DIALOG_CLASSES.distributeDialog.attrValue}.selected`).removeClass('selected');
           html.find(`.${DIALOG_CLASSES.distributeDialog.dropZone}.click-target`).removeClass('click-target');
-          selectedValue = null;
+          selectedElementId = null;
         };
 
         const updatePreview = (ability, value) => {
@@ -716,9 +718,11 @@ async function ShowDistributionDialog(actor, title, values) {
           html.find(`#preview-${ability}`).html(`${textDictionary.current}: <strong>${currentActorValue}</strong> + ${modifier >= 0 ? '+' : ''}${modifier} = <strong>${newValue}</strong>`);
         };
 
-        const assignValue = (value, targetZone) => {
-          const valueElem = html.find(`.${DIALOG_CLASSES.distributeDialog.attrValue}[data-value="${value}"]`);
+        const assignValue = (elementId, targetZone) => {
+          const valueElem = html.find(`#${elementId}`);
           if (valueElem.length === 0) return;
+
+          const value = valueElem.data('value');
 
           if (targetZone.hasClass(DIALOG_CLASSES.distributeDialog.dropZone)) {
             const existing = targetZone.find(`.${DIALOG_CLASSES.distributeDialog.attrValue}`);
@@ -753,36 +757,33 @@ async function ShowDistributionDialog(actor, title, values) {
           target.removeClass('drag-over');
 
           const id = ev.originalEvent.dataTransfer.getData("text/plain");
-          const draggedElem = html.find(`#${id}`);
-          const draggedValue = draggedElem.data('value');
-
-          assignValue(draggedValue, target);
+          assignValue(id, target);
         });
 
         // Click to Select Events
         html.find(`.${DIALOG_CLASSES.distributeDialog.attrValue}`).on('click', (ev) => {
           ev.stopPropagation();
-          const value = $(ev.currentTarget).data('value');
+          const elementId = $(ev.currentTarget).attr('id');
 
-          if (selectedValue === value) {
+          if (selectedElementId === elementId) {
             clearSelection();
           } else {
             clearSelection();
             $(ev.currentTarget).addClass('selected');
-            selectedValue = value;
+            selectedElementId = elementId;
             html.find(`.${DIALOG_CLASSES.distributeDialog.dropZone}`).addClass('click-target');
           }
         });
 
         html.find(`.${DIALOG_CLASSES.distributeDialog.dropZone}`).on('click', (ev) => {
-          if (selectedValue !== null) {
-            assignValue(selectedValue, $(ev.currentTarget));
+          if (selectedElementId !== null) {
+            assignValue(selectedElementId, $(ev.currentTarget));
           }
         });
 
         html.find('#pool').on('click', (ev) => {
-          if (selectedValue !== null && $(ev.target).closest(`.${DIALOG_CLASSES.distributeDialog.attrValue}`).length === 0) {
-            assignValue(selectedValue, pool);
+          if (selectedElementId !== null && $(ev.target).closest(`.${DIALOG_CLASSES.distributeDialog.attrValue}`).length === 0) {
+            assignValue(selectedElementId, pool);
           }
         });
 

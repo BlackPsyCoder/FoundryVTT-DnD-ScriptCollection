@@ -252,7 +252,7 @@ async function selectSpecies(actor) {
         return;
     }
 
-    const waitFinish = waitForApplicationClose(manager);
+    const waitFinish = WaitForApplicationClose(manager);
     await manager.render(true);
 
     await waitFinish;
@@ -277,14 +277,14 @@ async function selectBackground(actor) {
         return;
     }
 
-    const waitFinish = waitForApplicationClose(manager);
+    const waitFinish = WaitForApplicationClose(manager);
     await manager.render(true);
 
     await waitFinish;
     ui.notifications.info(`${textDictionary.selectBackground} ${item.name} ${textDictionary.messageCompleted}.`);
 }
 
-async function waitForApplicationClose(app) {
+async function WaitForApplicationClose(app) {
     return new Promise(resolve => {
         app.addEventListener("close", () => {
             resolve();

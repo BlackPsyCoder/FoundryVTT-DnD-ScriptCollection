@@ -1,14 +1,14 @@
 // ** LiesMich **
 // Dieses Skript kann verwendet werden um bei einem Actor ein LevelUp Auszulösen.
-// Das Skript ist darauf Ausgelegt das es von einem Anderen Skript Ausgeöst werden kann, Verwendet man das PlayerManager.js Skript muss man sicherstrellen das der Name dieses Skriptes im PlayerManager.js angepasst wird.
+// Das Skript ist darauf Ausgelegt das es von einem Anderen Skript Ausgeöst werden kann, Verwendet man das CreationDialog Skript muss man sicherstrellen das der Name dort angepasst wird.
 // Beim Aufleveln kann man entscheiden ob man die Stufe einer Vorhandenen Klasse erhöht oder eine neue Klasse hinzufügt (Multiclass).
 //
 // ** ReadMe **
 // This script can be used to trigger a level up for an actor.
+// This script is designet to bee called from another script, if the CreationDialog script is used you have to make sure that the name of this makro is correct.
 // When leveling up, you can choose whether to increase the level of an existing class or add a new class (multiclass).
 
 const textDictionary = GetTranslationDictionary(game.i18n.lang);
-
 
 function GetTranslationDictionary(lang) {
     let dictionary = {};
@@ -19,6 +19,7 @@ function GetTranslationDictionary(lang) {
                 errorNoActor: "Kein Actor ausgewählt. Bitte wähle einen Actor aus.",
                 chooseClass: "Wähle eine Klasse für das Level up",
                 newClass: "Neue Klasse (Multiclass)",
+                noGenerateMacroMessage: "Das Makro zum Erstellen der Basis Attribute fehlt.<br/>Die Attribute müssen Manuell angepasst werden.",
             };
             break;
         case "es":
@@ -27,6 +28,7 @@ function GetTranslationDictionary(lang) {
                 errorNoActor: "No se ha seleccionado ningún actor. Por favor, selecciona un actor.",
                 chooseClass: "Elige una clase para el nivel",
                 newClass: "Nueva clase (Multiclase)",
+                noGenerateMacroMessage: "Falta la macro para generar los atributos base.<br/>Los atributos deben ajustarse manualmente.",
             };
             break;
         case "it":
@@ -35,6 +37,7 @@ function GetTranslationDictionary(lang) {
                 errorNoActor: "Nessun attore selezionato. Per favore, seleziona un attore.",
                 chooseClass: "Scegli una classe per il livello",
                 newClass: "Nuova classe (Multiclasse)",
+                noGenerateMacroMessage: "Manca la macro per generare gli attributi base.<br/>Gli attributi devono essere impostati manualmente.",
             };
             break;
         case "fr":
@@ -43,6 +46,7 @@ function GetTranslationDictionary(lang) {
                 errorNoActor: "Aucun acteur sélectionné. Veuillez sélectionner un acteur.",
                 chooseClass: "Choisissez une classe pour le niveau",
                 newClass: "Nouvelle classe (Multiclasse)",
+                noGenerateMacroMessage: "La macro de génération des attributs de base est manquante.<br/>Les attributs doivent être ajustés manuellement.",
             };
             break;
         case "en":
@@ -52,11 +56,14 @@ function GetTranslationDictionary(lang) {
                 errorNoActor: "No actor selected. Please select an actor.",
                 chooseClass: "Choose a class for level up",
                 newClass: "New Class (Multiclass)",
+                noGenerateMacroMessage: "The macro for creating the base attributes is missing.<br/>The attributes must be adjusted manually.",
             };
             break;
     }
     return dictionary;
 }
+
+const generateInitialAbilitiesMacro = "GenerateInitialAbilities";
 
 // End of the area of easily customizable variables, adjustments in the rest of the script should be made with caution as they may affect functionality
 /*
@@ -72,17 +79,17 @@ function GetTranslationDictionary(lang) {
 
 const actorId = scope?.actorId || game.canvas.tokens.controlled[0]?.actor?.id;
 if (actorId) {
-    levelUpProcess(game.actors.get(actorId));
+    LevelUpProcess(game.actors.get(actorId));
 } else {
     ui.notifications.warn(textDictionary.errorNoActor);
 }
 
-async function levelUpProcess(actor) {
+async function LevelUpProcess(actor) {
     const classes = actor.items.filter(i => i.type === "class");
     const manager = game.dnd5e.applications.advancement.AdvancementManager;
-    const browser = game.dnd5e.applications.compendiumBrowser;
+    const browser = game.dnd5e.applications.CompendiumBrowser;
 
-    const addNewClass = async () => {
+    const AddNewClass = async (generateInitials) => {
         const classUuid = await browser.selectOne({
             tab: "classes",
             filters: { locked: { types: new Set(["class"]) } }
@@ -90,12 +97,43 @@ async function levelUpProcess(actor) {
 
         if (classUuid) {
             const item = await fromUuid(classUuid);
-            const m = await manager.forNewItem(actor, item.toObject(), { automaticApplication: true });
-            return m.render(true);
+            const itemData = item.toObject();
+            const m = await manager.forNewItem(actor, itemData, { automaticApplication: true });
+            const waitFinish = WaitForApplicationClose(m);
+            m.render(true);
+            await waitFinish;
+
+            // refresh actor reference and detect newly added classes
+            const newClasses = actor.items.filter(i => i.type === "class");
+
+            if (generateInitials && newClasses.length > 0) {
+                const newClass = newClasses[0];
+                // derive a sensible class identifier to pass to the GenerateInitialAbilities macro
+                let classIdentifier = null;
+                if (newClass.system && newClass.system.identifier) {
+                    classIdentifier = newClass.system.identifier;
+                    console.log("Class Identifier System Identifier: " + classIdentifier);
+                }
+
+                // call GenerateInitialAbilities macro if present
+                const genMacro = game.macros.getName(generateInitialAbilitiesMacro);
+                if (genMacro) {
+                    try {
+                        await genMacro.execute({ actorId: actor.id, classId: classIdentifier });
+                    } catch (err) {
+                        console.warn(`Failed to execute ${generateInitialAbilitiesMacro} macro`, err);
+                    }
+                } else {
+                    ui.notifications.warn(textDictionary.noGenerateMacroMessage);
+                }
+            }
+            return;
         }
     };
 
-    if (classes.length === 0) return addNewClass();
+    if (classes.length === 0) {
+        return AddNewClass(true);
+    }
 
     let classButtons = {};
     for (const cls of classes) {
@@ -116,7 +154,7 @@ async function levelUpProcess(actor) {
     classButtons["newClass"] = {
         icon: '<i class="fas fa-plus"></i>',
         label: textDictionary.newClass,
-        callback: async () => await addNewClass()
+        callback: async () => await AddNewClass(false)
     };
 
     new Dialog({
@@ -125,4 +163,12 @@ async function levelUpProcess(actor) {
         buttons: classButtons,
         default: "newClass"
     }).render(true);
+}
+
+async function WaitForApplicationClose(app) {
+    return new Promise(resolve => {
+        app.addEventListener("close", () => {
+            resolve();
+        });
+    });
 }
