@@ -29,7 +29,7 @@ skipActors.add("Actor.UUIDToSkip1");
 skipActors.add("Actor.UUIDToSkip2");
 
 // Name of the Macro that should be executed when clicking the level up button, this should be the macro that manages the Levelup fron player perspective
-const levelManager = "PlayerLevelManager";
+const levelManager = "LevelDialog";
 
 const isGer = game.i18n.lang.startsWith("de");
 const textDictonary = GetTranslationDictionary(game.i18n.lang);
@@ -153,7 +153,8 @@ function xpBar(actor, player) {
     else if (xp > max) { pct = 100; }
     else { pct = Math.min(100, ((xp - min) / (max - min)) * 100); }
 
-    const canLevelUp = xp >= max;
+    // Allow level up if XP is maxed or if the character has no classes (new character)
+    const canLevelUp = (xp >= max) || (actor.items.filter(i => i.type === "class").length === 0); 
 
     return `
     <div style="${resourceBlockStyle}">
